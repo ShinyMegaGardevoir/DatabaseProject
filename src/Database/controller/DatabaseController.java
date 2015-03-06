@@ -68,6 +68,52 @@ public class DatabaseController
 		}
 		
 	}
+	
+	
+	public String displayTables()
+
+	{
+		String tableNames = "";
+		String query = "SHOW TABLES";
+		
+		try
+		{
+			Statement firstStatement = databaseConnection.createStatement();
+			ResultSet answers = firstStatement.executeQuery(query);
+			while(answers.next())
+			{
+				tableNames += answers.getString(1) + "\n";
+			}
+		}
+		catch(SQLException currentError)
+		{
+			displayErrors(currentError);
+		}
+		
+		return tableNames;
+	}
+	
+	public int insertSample()
+	{
+		int rowsAffected = -1;
+		String query = "INSERT INTO `pokemon_turf_wars`.`teams`"
+				+ "(`owner`, `id`, `team`)" 
+				+ "VALUES (6, 6,'Me');";
+		
+		try
+		{
+			Statement insertStatement = databaseConnection.createStatement();
+			rowsAffected = insertStatement.executeUpdate(query);
+			insertStatement.close();
+		}
+		catch(SQLException currentError)
+		{
+			displayErrors(currentError);
+		}
+		
+		return rowsAffected;
+	}
+	
 	/**
 	 * Gets the errors and displays them. Displays the Exception, the SQL State, and the Error code.
 	 * @param currentException The variable giving the exception/error.

@@ -27,10 +27,6 @@ public class DatabaseFrame extends JFrame
 		this.setVisible(true);
 	}
 	
-	private void setContentPane(DatabasePanel appPanel)
-	{
-		
-		
-	}
+
 
 }

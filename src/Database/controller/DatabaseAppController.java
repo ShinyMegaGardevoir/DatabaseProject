@@ -18,6 +18,10 @@ public class DatabaseAppController
 		return appFrame;
 	}
 
+	public DatabaseController getDataController()
+	{
+		return dataController;
+	}
 	
 	public void start()
 	{
