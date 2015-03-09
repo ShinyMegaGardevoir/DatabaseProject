@@ -21,7 +21,7 @@ public class DatabaseFrame extends JFrame
 	 */
 	public void setupFrame()
 	{
-		this.setSize(1000,1000);
+		this.setSize(900,800);
 		this.setResizable(false);
 		this.setContentPane(appPanel);
 		this.setVisible(true);

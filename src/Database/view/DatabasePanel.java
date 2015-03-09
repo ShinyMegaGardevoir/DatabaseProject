@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import Database.controller.DatabaseAppController;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class DatabasePanel extends JPanel
 {
@@ -16,7 +17,7 @@ public class DatabasePanel extends JPanel
 	private JButton queryButton;
 	private JScrollPane displayPane;
 	private JTextArea displayArea;
-
+	private JTable resultsTable;
 	
 	
 	public DatabasePanel(DatabaseAppController baseController)
@@ -26,14 +27,13 @@ public class DatabasePanel extends JPanel
 		titleLabel = new JLabel("Database");
 		queryButton = new JButton("Click here.");
 		displayArea = new JTextArea(15,30);
-		displayPane = new JScrollPane(displayArea);
 		
 	/**
 	 * Calls all the methods for making the Panel and implementing it.	
 	 */
-		setupDisplayPane();
+//		setupDisplayPane();
+		setupTable();
 		setupPanel();
-		
 		setupLayout();
 		setupListeners();
 	}
@@ -54,6 +54,16 @@ public class DatabasePanel extends JPanel
 		this.setLayout(baseLayout);
 		this.add(queryButton);
 		this.add(displayPane);
+		this.setSize(800,800);
+		
+		
+	}
+	
+	private void setupTable()
+	{
+		DefaultTableModel basicData = new DefaultTableModel(baseController.getDataController().testResults(), baseController.getDataController().getMetaDataTitles());
+		resultsTable = new JTable(basicData);
+		displayPane = new JScrollPane(resultsTable);
 		
 	}
 	
@@ -79,8 +89,12 @@ public class DatabasePanel extends JPanel
 		{
 			public void actionPerformed(ActionEvent click)
 			{
-				String results = baseController.getDataController().displayTables();
-				displayArea.setText(displayArea.getText() +"Rows Affected: " + results + "\n");
+				String [] temp = baseController.getDataController().getMetaDataTitles();
+				for(String current : temp)
+				{
+					displayArea.setText(displayArea.getText() +"Column : " + current + "\n");
+				}
+				
 			}
 		});
 		

@@ -84,6 +84,8 @@ public class DatabaseController
 			{
 				tableNames += answers.getString(1) + "\n";
 			}
+			answers.close();
+			firstStatement.close();
 		}
 		catch(SQLException currentError)
 		{
@@ -91,6 +93,73 @@ public class DatabaseController
 		}
 		
 		return tableNames;
+	}
+	
+	public String [] getMetaDataTitles()
+	{
+		String [] columns = null;
+		String query = "SHOW TABLES";
+		
+		
+		try
+		{
+			Statement firstStatement = databaseConnection.createStatement();
+			ResultSet answers = firstStatement.executeQuery(query);
+			ResultSetMetaData answerData = answers.getMetaData();
+			
+			columns = new String[answerData.getColumnCount()];
+			
+			for(int column = 0; column < answerData.getColumnCount(); column++)
+			{
+				columns[column] = answerData.getColumnName(column+1);
+			}
+			answers.close();
+			firstStatement.close();
+		}
+		catch(SQLException currentException)
+		{
+			columns = new String [] {"empty"};
+			displayErrors(currentException);
+			
+		}
+		
+		return columns;
+	}
+	
+	public String [][] testResults()
+	{
+		String[][] results;
+		String query = "SHOW TABLES";
+		
+		
+		try
+		{
+			Statement firstStatement = databaseConnection.createStatement();
+			ResultSet answers = firstStatement.executeQuery(query);
+			
+			answers.last();
+			int numberOfRows = answers.getRow();
+			answers.beforeFirst();
+			
+			results = new String [numberOfRows][1];
+			
+			while(answers.next())
+			{
+				results[answers.getRow()-1][0] = answers.getString(1);
+			}
+			
+		answers.close();
+		firstStatement.close();
+		
+		}
+		catch(SQLException currentException)
+		{
+			results = new String [][] {{"empty"}};
+			displayErrors(currentException);
+			
+		}
+		
+		return results;
 	}
 	
 	public int insertSample()
