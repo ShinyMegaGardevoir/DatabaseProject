@@ -10,6 +10,8 @@ public class DatabaseController
 	private String connectionString;
 	private Connection databaseConnection;
 	private DatabaseAppController baseController;
+	private String query;
+	private String currentQuery;
 	
 	/**
 	 * The database controller, passed through the base controller and calls for the program
@@ -18,10 +20,11 @@ public class DatabaseController
 	 */
 	public DatabaseController(DatabaseAppController baseController)
 	{
+		this.connectionString = "jdbc:mySQL://localhost/information_schema?user=root";
 		this.baseController = baseController;
-		this.connectionString = "jdbc:mySQL://localhost/pokemon_turf_wars?user=root";
 		checkDriver();
 		setupConnection();
+		
 	}
 	/**
 	 * Checks for the SQL driver. If it doesn't exist the program displays an error message and then shuts down.
@@ -39,6 +42,25 @@ public class DatabaseController
 		}
 	}
 	
+	public void connectionStringBuilder(String pathToDBServer, String databaseName, String userName, String password)
+	{
+		connectionString = "jdbc:mysql://";
+		connectionString += pathToDBServer;
+		connectionString += "/" + databaseName;
+		connectionString += "?user=" + userName;
+		connectionString += "&password" + password;
+	}
+	
+	public String getQuery()
+	{
+		return query;
+	}
+	
+	public void setQuery(String query)
+	{
+		
+	}
+	
 	/**
 	 * Closes the connection to the database and displays an error message if it fails.
 	 */
@@ -53,10 +75,180 @@ public class DatabaseController
 			displayErrors(currentException);
 		}
 	}
+	
+	public void dropStatement(String query)
+	{
+		this.currentQuery = query;
+		String results;
+		try
+		{
+			if(checkForStructureViolation())
+			{
+				throw new SQLException("You aren't allowed to drop DB's", "No.", Integer.MAX_VALUE);
+			}
+			
+			if(currentQuery.toUpperCase().contains(" INDEX "))
+			{
+				results = "The index was ";
+			}
+			else
+			{
+				results = "The table was ";
+			}
+			
+			Statement dropStatement = databaseConnection.createStatement();
+			int affected = dropStatement.executeUpdate(currentQuery);
+			
+			dropStatement.close();
+			
+			if(affected == 0)
+			{
+				results += "dropped";
+				
+			}
+			JOptionPane.showMessageDialog(baseController.getAppFrame(), results);
+		}
+		catch(SQLException dropError)
+		{
+			
+			displayErrors(dropError);
+		}
+		
+		}
+	
+	
+	/**
+	 * Generic version of the select query mthod. Will work with any database specified by the connectionString value.
+	 * @param query The SELECT query to be turned into a ResultSet object.
+	 * @return The 2D array of results from said query.
+	 */
+	public String[][] selectQueryResults(String query)
+	{
+		
+		String[][] results;
+		this.currentQuery = query;
+		
+		try
+		{
+			if(checkQueryForDataViolation())
+			{
+				throw new SQLException("Attempted illegal modification of data", "", Integer.MIN_VALUE);
+			}
+			
+			Statement firstStatement = databaseConnection.createStatement();
+			ResultSet answer = firstStatement.executeQuery(query);
+			int columnCount = answer.getMetaData().getColumnCount();
+			answer.last();
+			int rowCount = answer.getRow();
+			answer.beforeFirst();
+			results = new String[rowCount][columnCount];
+			
+			while(answer.next())
+			{
+				for(int col = 0; col < columnCount; col++)
+				{
+					results[answer.getRow() - 1][col] = answer.getString(col + 1);
+				}
+			}
+		}
+		catch(SQLException currentException)
+		{
+			results = new String[][] { {"The query was unsuccessful."},
+									   {"You might want to use a better query."},
+									   {currentException.getMessage()}
+									 };
+			displayErrors(currentException);
+			}
+			return results;
+		}
+	
+	public String[][] getForeignKeyOptions(String tableName)
+	{
+		return null;
+		
+	}
+	
+	/**
+	 * Checks for a structure violation
+	 * @return True if the query contains "DATABASE".
+	 */
+	
+	private boolean checkForStructureViolation()
+	{
+		if(currentQuery.toUpperCase().contains(" DATABASE "))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	/**
+	 * Checks for queries that cause data violations (DROP, TRUNCATE, SET, and ALTER) and returns true if
+	 * any of them are found.
+	 * @return If Data is being edited (DROP, TRUNCATE, SET, ALTER).
+	 */
+
+	private boolean checkQueryForDataViolation()
+	{
+		if(query.toUpperCase().contains(" DROP ")
+						|| query.toUpperCase().contains(" TRUNCATE ")
+						|| query.toUpperCase().contains(" SET ")
+						|| query.toUpperCase().contains(" ALTER "))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * Gets the results
+	 * @return
+	 */
+	
+	public String [][] realResults()
+	{
+		String [][] results;
+		query = "SELECT * FROM `INNODB_SYS_COLUMNS`";
+		try
+		{
+			Statement firstStatement = databaseConnection.createStatement();
+			ResultSet answers = firstStatement.executeQuery(query);
+			
+			int columnCount = answers.getMetaData().getColumnCount();
+			answers.last();
+			int numberOfRows = answers.getRow();
+			answers.beforeFirst();
+			
+			
+			results = new String [numberOfRows][columnCount];
+			while(answers.next())
+			{
+				for(int col = 0; col < columnCount; col++)
+				{
+					results[answers.getRow()-1][col] = answers.getString(col + 1);
+				}
+				
+			}
+			answers.close();
+			firstStatement.close();
+		}
+		catch(SQLException currentError)
+		{
+			results = new String [][] {{"empty"}};
+			displayErrors(currentError);
+		}
+		
+		return results;
+	}
 	/**
 	 * Set-up the connection with the SQL server, displays an error message if it fails.
 	 */
-	private void setupConnection()
+	public void setupConnection()
 	{
 		try
 		{
@@ -69,12 +261,15 @@ public class DatabaseController
 		
 	}
 	
-	
+	/**
+	 * Displays the Table that holds the data from the database.
+	 * @return The names of the table and the table itself.
+	 */
 	public String displayTables()
 
 	{
 		String tableNames = "";
-		String query = "SHOW TABLES";
+		query = "SHOW TABLES";
 		
 		try
 		{
@@ -94,11 +289,15 @@ public class DatabaseController
 		
 		return tableNames;
 	}
-	
+	/**
+	 * Meta-Data is good for getting the data from the database. It starts with the column count, and then
+	 * moves to the column name.
+	 * @return The names of the columns on the table.
+	 */
 	public String [] getMetaDataTitles()
 	{
 		String [] columns = null;
-		String query = "SHOW TABLES";
+		String query = "SELECT * FROM `INNODB_SYS_COLUMNS`";
 		
 		
 		try
@@ -126,6 +325,10 @@ public class DatabaseController
 		return columns;
 	}
 	
+	/**
+	 * Makes a 2D array that returns the results (fields) from the table. 
+	 * @return The results from the table.
+	 */
 	public String [][] testResults()
 	{
 		String[][] results;
@@ -162,11 +365,15 @@ public class DatabaseController
 		return results;
 	}
 	
+	/**
+	 * Inserts a sample query into the database. 
+	 * @return Puts sample data into the database in the given table.
+	 */
 	public int insertSample()
 	{
 		int rowsAffected = -1;
 		String query = "INSERT INTO `pokemon_turf_wars`.`teams`"
-				+ "(`owner`, `id`, `team`)" 
+				+ "(`id`, `owner`, `team`)" 
 				+ "VALUES (6, 6,'Me');";
 		
 		try
