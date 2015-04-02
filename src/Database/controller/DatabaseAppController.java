@@ -1,15 +1,23 @@
 package Database.controller;
 
+import java.awt.Container;
+import java.util.ArrayList;
+
+import Database.model.QueryInfo;
 import Database.view.DatabaseFrame;
 
 public class DatabaseAppController
 {
 	private DatabaseFrame appFrame;
 	private DatabaseController dataController;
+	private ArrayList<QueryInfo> queryList;
+	
 	public DatabaseAppController()
 	{
 		dataController = new DatabaseController(this);
+		queryList = new ArrayList<QueryInfo>();
 		appFrame = new DatabaseFrame(this);
+		
 		
 	}
 	
@@ -37,6 +45,11 @@ public class DatabaseAppController
 	public void start()
 	{
 		
+	}
+
+	public ArrayList<QueryInfo> getQueryList()
+	{
+		return queryList;
 	}
 	
 }

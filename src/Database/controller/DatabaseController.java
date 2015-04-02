@@ -2,6 +2,8 @@ package Database.controller;
 
 import javax.swing.JOptionPane;
 
+import Database.model.QueryInfo;
+
 import java.sql.*;
 
 public class DatabaseController
@@ -12,6 +14,7 @@ public class DatabaseController
 	private DatabaseAppController baseController;
 	private String query;
 	private String currentQuery;
+	private long queryTime;
 	
 	/**
 	 * The database controller, passed through the base controller and calls for the program
@@ -22,6 +25,7 @@ public class DatabaseController
 	{
 		this.connectionString = "jdbc:mySQL://localhost/information_schema?user=root";
 		this.baseController = baseController;
+		queryTime = 0;
 		checkDriver();
 		setupConnection();
 		
@@ -58,8 +62,9 @@ public class DatabaseController
 	
 	public void setQuery(String query)
 	{
-		
+		this.query = query;
 	}
+	
 	
 	/**
 	 * Closes the connection to the database and displays an error message if it fails.
@@ -80,6 +85,8 @@ public class DatabaseController
 	{
 		this.currentQuery = query;
 		String results;
+		long startTime, endTime;
+		startTime = System.currentTimeMillis();
 		try
 		{
 			if(checkForStructureViolation())
@@ -106,13 +113,17 @@ public class DatabaseController
 				results += "dropped";
 				
 			}
+			endTime = System.currentTimeMillis();
 			JOptionPane.showMessageDialog(baseController.getAppFrame(), results);
 		}
 		catch(SQLException dropError)
 		{
-			
+			endTime = System.currentTimeMillis();
 			displayErrors(dropError);
 		}
+		
+		queryTime = endTime - startTime;
+		baseController.getQueryList().add(new QueryInfo(query, queryTime));
 		
 		}
 	
@@ -127,6 +138,8 @@ public class DatabaseController
 		
 		String[][] results;
 		this.currentQuery = query;
+		long startTime, endTime;
+		startTime = System.currentTimeMillis();
 		
 		try
 		{
@@ -150,16 +163,23 @@ public class DatabaseController
 					results[answer.getRow() - 1][col] = answer.getString(col + 1);
 				}
 			}
+			
+			answer.close();
+			firstStatement.close();
+			endTime = System.currentTimeMillis();
 		}
 		catch(SQLException currentException)
-		{
+			{
+			endTime = System.currentTimeMillis();
 			results = new String[][] { {"The query was unsuccessful."},
 									   {"You might want to use a better query."},
 									   {currentException.getMessage()}
 									 };
 			displayErrors(currentException);
 			}
-			return results;
+		queryTime = endTime - startTime;
+		baseController.getQueryList().add(new QueryInfo(query, queryTime));
+		return results;
 		}
 	
 	public String[][] getForeignKeyOptions(String tableName)
@@ -214,6 +234,8 @@ public class DatabaseController
 	{
 		String [][] results;
 		query = "SELECT * FROM `INNODB_SYS_COLUMNS`";
+		long startTime, endTime;
+		startTime = System.currentTimeMillis();
 		try
 		{
 			Statement firstStatement = databaseConnection.createStatement();
@@ -236,14 +258,19 @@ public class DatabaseController
 			}
 			answers.close();
 			firstStatement.close();
+			endTime = System.currentTimeMillis();
 		}
 		catch(SQLException currentError)
 		{
+			endTime = System.currentTimeMillis();
 			results = new String [][] {{"empty"}};
 			displayErrors(currentError);
 		}
 		
+		queryTime = endTime - startTime;
+		baseController.getQueryList().add(new QueryInfo(query, queryTime));
 		return results;
+		
 	}
 	/**
 	 * Set-up the connection with the SQL server, displays an error message if it fails.
@@ -270,6 +297,8 @@ public class DatabaseController
 	{
 		String tableNames = "";
 		query = "SHOW TABLES";
+		long startTime, endTime;
+		startTime = System.currentTimeMillis();
 		
 		try
 		{
@@ -281,11 +310,16 @@ public class DatabaseController
 			}
 			answers.close();
 			firstStatement.close();
+			endTime = System.currentTimeMillis();
 		}
 		catch(SQLException currentError)
 		{
+			endTime = System.currentTimeMillis();
 			displayErrors(currentError);
 		}
+		
+		queryTime = endTime - startTime;
+		baseController.getQueryList().add(new QueryInfo(query, queryTime));
 		
 		return tableNames;
 	}
@@ -298,7 +332,8 @@ public class DatabaseController
 	{
 		String [] columns = null;
 		String query = "SELECT * FROM `INNODB_SYS_COLUMNS`";
-		
+		long startTime, endTime;
+		startTime = System.currentTimeMillis();
 		
 		try
 		{
@@ -312,15 +347,20 @@ public class DatabaseController
 			{
 				columns[column] = answerData.getColumnName(column+1);
 			}
+			endTime = System.currentTimeMillis();
 			answers.close();
 			firstStatement.close();
 		}
 		catch(SQLException currentException)
 		{
+			endTime = System.currentTimeMillis();
 			columns = new String [] {"empty"};
 			displayErrors(currentException);
 			
 		}
+		
+		queryTime = endTime - startTime;
+		baseController.getQueryList().add(new QueryInfo(query, queryTime));
 		
 		return columns;
 	}
@@ -333,7 +373,8 @@ public class DatabaseController
 	{
 		String[][] results;
 		String query = "SHOW TABLES";
-		
+		long startTime, endTime;
+		startTime = System.currentTimeMillis();
 		
 		try
 		{
@@ -353,15 +394,18 @@ public class DatabaseController
 			
 		answers.close();
 		firstStatement.close();
-		
+		endTime = System.currentTimeMillis();
 		}
 		catch(SQLException currentException)
 		{
+			endTime = System.currentTimeMillis();
 			results = new String [][] {{"empty"}};
 			displayErrors(currentException);
 			
 		}
 		
+		queryTime = endTime - startTime;
+		baseController.getQueryList().add(new QueryInfo(query, queryTime));
 		return results;
 	}
 	
@@ -375,18 +419,23 @@ public class DatabaseController
 		String query = "INSERT INTO `pokemon_turf_wars`.`teams`"
 				+ "(`id`, `owner`, `team`)" 
 				+ "VALUES (6, 6,'Me');";
-		
+		long endTime, startTime;
+		startTime = System.currentTimeMillis();
 		try
 		{
 			Statement insertStatement = databaseConnection.createStatement();
 			rowsAffected = insertStatement.executeUpdate(query);
 			insertStatement.close();
+			endTime = System.currentTimeMillis();
 		}
 		catch(SQLException currentError)
 		{
+			endTime = System.currentTimeMillis();
 			displayErrors(currentError);
 		}
 		
+		queryTime = endTime - startTime;
+		baseController.getQueryList().add(new QueryInfo(query, queryTime));
 		return rowsAffected;
 	}
 	

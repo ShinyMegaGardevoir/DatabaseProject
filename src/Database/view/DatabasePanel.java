@@ -8,6 +8,7 @@ import Database.controller.DatabaseAppController;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import java.awt.Font;
 import java.sql.ResultSet;
@@ -27,6 +28,7 @@ public class DatabasePanel extends JPanel
 	private JPasswordField samplePassword;
 	private JLabel lblPassword;
 	private JButton otherButton;
+	private CellRenderer cellRenderer;
 	
 	
 	public DatabasePanel(DatabaseAppController baseController)
@@ -38,7 +40,7 @@ public class DatabasePanel extends JPanel
 		displayArea = new JTextArea(15,30);
 		samplePassword = new JPasswordField(null, 20);
 		baseLayout.putConstraint(SpringLayout.WEST, samplePassword, 124, SpringLayout.WEST, this);
-		
+		cellRenderer = new CellRenderer();
 	/**
 	 * Calls all the methods for making the Panel and implementing it.	
 	 */
@@ -108,13 +110,17 @@ public class DatabasePanel extends JPanel
 	 */
 	private void setupTable()
 	{
-		DefaultTableModel basicData = new DefaultTableModel(baseController.getDataController().testResults(), baseController.getDataController().getMetaDataTitles());
-		resultsTable = new JTable(basicData);
-		displayPane = new JScrollPane(resultsTable);
-		baseLayout.putConstraint(SpringLayout.NORTH, samplePassword, 28, SpringLayout.SOUTH, displayPane);
-		baseLayout.putConstraint(SpringLayout.NORTH, displayPane, 150, SpringLayout.NORTH, this);
-		baseLayout.putConstraint(SpringLayout.WEST, displayPane, 150, SpringLayout.WEST, this);
+//    	DefaultTableModel basicData = new DefaultTableModel(baseController.getDataController().testResults(), baseController.getDataController().getMetaDataTitles());
+	//	resultsTable = new JTable(basicData);
 		
+		
+		
+		JTable tableData = new JTable(new DefaultTableModel(baseController.getDataController().testResults(), baseController.getDataController().getMetaDataTitles()));
+		displayPane = new JScrollPane(tableData);
+		for(int spot = 0; spot < tableData.getColumnCount(); spot++)
+		{
+			tableData.getColumnModel().getColumn(spot).setCellRenderer(cellRenderer);
+		}
 	}
 	
 	
@@ -125,6 +131,9 @@ public class DatabasePanel extends JPanel
 	{
 
 
+		baseLayout.putConstraint(SpringLayout.NORTH, samplePassword, 28, SpringLayout.SOUTH, displayPane);
+		baseLayout.putConstraint(SpringLayout.NORTH, displayPane, 150, SpringLayout.NORTH, this);
+		baseLayout.putConstraint(SpringLayout.WEST, displayPane, 150, SpringLayout.WEST, this);
 	
 	
 	
