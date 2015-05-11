@@ -41,13 +41,14 @@ public class DatabasePanel extends JPanel
 		samplePassword = new JPasswordField(null, 20);
 		baseLayout.putConstraint(SpringLayout.WEST, samplePassword, 124, SpringLayout.WEST, this);
 		cellRenderer = new CellRenderer();
+		displayPane = new JScrollPane(displayArea);
 	/**
 	 * Calls all the methods for making the Panel and implementing it.	
 	 */
 		
 		setupTable();
 		setupPanel();
-//		setupDisplayPane();
+		setupDisplayPane();
 		setupLayout();
 		setupListeners();
 	}
@@ -56,7 +57,7 @@ public class DatabasePanel extends JPanel
 	{
 		displayArea.setWrapStyleWord(true);
 		displayArea.setLineWrap(true);
-//		displayArea.setEditable(false);
+    	displayArea.setEditable(false);
 		displayArea.setBackground(Color.lightGray);
 	}
 	/**
@@ -77,7 +78,7 @@ public class DatabasePanel extends JPanel
 		
 	
 		
-		samplePassword.setEchoChar('Ë');
+		samplePassword.setEchoChar('÷ç');
 		samplePassword.setFont(new Font("Serif", Font.BOLD, 32));
 		samplePassword.setForeground(Color.CYAN);
 		

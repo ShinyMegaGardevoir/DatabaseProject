@@ -23,11 +23,12 @@ public class DatabaseController
 	 */
 	public DatabaseController(DatabaseAppController baseController)
 	{
-		this.connectionString = "jdbc:mySQL://localhost/information_schema?user=root";
+		this.connectionString = "jdbc:mysql://localhost/pokemon_turf_wars?user=root";
 		this.baseController = baseController;
-		queryTime = 0;
+		
 		checkDriver();
 		setupConnection();
+		
 		
 	}
 	/**
@@ -129,7 +130,7 @@ public class DatabaseController
 	
 	
 	/**
-	 * Generic version of the select query mthod. Will work with any database specified by the connectionString value.
+	 * Generic version of the select query method. Will work with any database specified by the connectionString value.
 	 * @param query The SELECT query to be turned into a ResultSet object.
 	 * @return The 2D array of results from said query.
 	 */
@@ -358,6 +359,43 @@ public class DatabaseController
 			displayErrors(currentException);
 			
 		}
+//		baseController.getTimingInfoList().add(new QueryInfo(queryTime, endTime - startTime));
+		queryTime = endTime - startTime;
+		baseController.getQueryList().add(new QueryInfo(query, queryTime));
+		
+		return columns;
+	}
+	
+	public String [] getDatabaseColumnNames(String tableName)
+	{
+		String [] columns = null;
+		String query = "SELECT * FROM `"+ tableName +"`";
+		long startTime, endTime;
+		startTime = System.currentTimeMillis();
+		
+		try
+		{
+			Statement firstStatement = databaseConnection.createStatement();
+			ResultSet answers = firstStatement.executeQuery(query);
+			ResultSetMetaData answerData = answers.getMetaData();
+			
+			columns = new String[answerData.getColumnCount()];
+			
+			for(int column = 0; column < answerData.getColumnCount(); column++)
+			{
+				columns[column] = answerData.getColumnName(column+1);
+			}
+			endTime = System.currentTimeMillis();
+			answers.close();
+			firstStatement.close();
+		}
+		catch(SQLException currentException)
+		{
+			endTime = System.currentTimeMillis();
+			columns = new String [] {"empty"};
+			displayErrors(currentException);
+			
+		}
 		
 		queryTime = endTime - startTime;
 		baseController.getQueryList().add(new QueryInfo(query, queryTime));
@@ -451,6 +489,26 @@ public class DatabaseController
 			JOptionPane.showMessageDialog(baseController.getAppFrame(), "SQL State: " + ((SQLException) currentException).getSQLState());
 			JOptionPane.showMessageDialog(baseController.getAppFrame(), "SQL Error Code: " + ((SQLException) currentException).getErrorCode());
 		}
+	}
+	
+	public void submitUpdateQuery(String query)
+	{
+		this.query = query;
+		long startTime, endTime;
+		startTime = System.currentTimeMillis();
+		endTime = 0;
+		try
+		{
+			Statement updateStatement = databaseConnection.createStatement();
+			updateStatement.executeUpdate(query);
+			endTime = System.currentTimeMillis();
+		}
+		catch(SQLException currentError)
+		{
+			endTime = System.currentTimeMillis();
+			displayErrors(currentError);
+		}
+		baseController.getQueryList().add(new QueryInfo(query, endTime - startTime));
 	}
 
 }

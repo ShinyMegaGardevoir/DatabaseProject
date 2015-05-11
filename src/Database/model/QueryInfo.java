@@ -40,4 +40,6 @@ public class QueryInfo
 	{
 		return queryTime;
 	}
+	
+	
 }

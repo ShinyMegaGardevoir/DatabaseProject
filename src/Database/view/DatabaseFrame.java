@@ -1,5 +1,8 @@
 package Database.view;
 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+
 import Database.view.DatabasePanel;
 
 import javax.swing.*;
@@ -10,9 +13,11 @@ public class DatabaseFrame extends JFrame
 {
 	
 	private DatabasePanel appPanel;
+	private DatabaseAppController baseController;
 	
 	public DatabaseFrame(DatabaseAppController baseController)
 	{
+		this.baseController = baseController;
 		appPanel = new DatabasePanel(baseController);
 		setupFrame();
 	}
@@ -27,6 +32,57 @@ public class DatabaseFrame extends JFrame
 		this.setVisible(true);
 	}
 	
+	public void setupListeners()
+	{
+		addWindowListener(new WindowListener()
+		{
+
+			public void windowActivated(WindowEvent arg0)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void windowClosed(WindowEvent arg0)
+			{
+				baseController.saveTimeInformation();
+				
+			}
+
+			public void windowClosing(WindowEvent arg0)
+			{
+//				baseController.saveTimingInformation();
+				
+			}
+
+			public void windowDeactivated(WindowEvent arg0)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void windowDeiconified(WindowEvent arg0)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void windowIconified(WindowEvent arg0)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void windowOpened(WindowEvent arg0)
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		
+		
+	}
 
 
 }
