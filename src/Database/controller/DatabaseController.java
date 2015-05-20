@@ -46,7 +46,13 @@ public class DatabaseController
 			System.exit(1);
 		}
 	}
-	
+	/**
+	 * Makes the connection string.
+	 * @param pathToDBServer The path to the Database Server (this will be an IP or Localhost)
+	 * @param databaseName The Name of the Database being pulled up.
+	 * @param userName The Username for getting into the Database.
+	 * @param password The password for getting into the Database.
+	 */
 	public void connectionStringBuilder(String pathToDBServer, String databaseName, String userName, String password)
 	{
 		connectionString = "jdbc:mysql://";
@@ -81,7 +87,10 @@ public class DatabaseController
 			displayErrors(currentException);
 		}
 	}
-	
+	/**
+	 * Checks for a Drop statement.
+	 * @param query The statement passed to SQL.
+	 */
 	public void dropStatement(String query)
 	{
 		this.currentQuery = query;
@@ -183,11 +192,7 @@ public class DatabaseController
 		return results;
 		}
 	
-	public String[][] getForeignKeyOptions(String tableName)
-	{
-		return null;
-		
-	}
+	
 	
 	/**
 	 * Checks for a structure violation
@@ -228,7 +233,7 @@ public class DatabaseController
 	
 	/**
 	 * Gets the results
-	 * @return
+	 * @return The Columns and Rows.
 	 */
 	
 	public String [][] realResults()
@@ -365,7 +370,11 @@ public class DatabaseController
 		
 		return columns;
 	}
-	
+	/**
+	 * 
+	 * @param tableName The name of the table that is pulled up.
+	 * @return The names of the columns in the Table/Database.
+	 */
 	public String [] getDatabaseColumnNames(String tableName)
 	{
 		String [] columns = null;
@@ -490,7 +499,9 @@ public class DatabaseController
 			JOptionPane.showMessageDialog(baseController.getAppFrame(), "SQL Error Code: " + ((SQLException) currentException).getErrorCode());
 		}
 	}
-	
+	/**
+	 * Updates a query.
+	 */
 	public void submitUpdateQuery(String query)
 	{
 		this.query = query;

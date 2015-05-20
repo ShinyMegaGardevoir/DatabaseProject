@@ -54,11 +54,17 @@ public class DatabaseAppController
 		loadTimeInformation();
 	}
 
+	/**
+	 * Allows other classes to get access to the queryList object.
+	 * @return
+	 */
 	public ArrayList<QueryInfo> getQueryList()
 	{
 		return queryList;
 	}
-	
+	/**
+	 * Loads the timing information from a save file.
+	 */
 	private void loadTimeInformation()
 	{
 		File loadFile = new File("save.save");
@@ -88,7 +94,9 @@ public class DatabaseAppController
 			dataController.displayErrors(currentError);
 		}
 	}
-	
+	/**
+	 * Saves the timing information to a save file.
+	 */
 	public void saveTimeInformation()
 	{
 		try

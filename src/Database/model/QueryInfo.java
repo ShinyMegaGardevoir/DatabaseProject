@@ -24,7 +24,7 @@ public class QueryInfo
 	}
 
 	/**
-	 * Getter for the query.
+	 * Getter for the query (lets other classes get it).
 	 * @return The query value of this QueryInfo.
 	 */
 	public String getQuery()

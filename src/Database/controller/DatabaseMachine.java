@@ -11,14 +11,22 @@ public class DatabaseMachine
 	}
 	
 	
-	
+	/**
+	 * Swaps 2 items in an array.
+	 * @param array The array being used.
+	 * @param position The position that needs to be swapped.
+	 * @param change The temporary position that allows you to swap the spots in the array.
+	 */
 	private void swap(int[] array, int position, int change)
 	{
 		int temp = array[position];
 		array[position] = array[change];
 		array[change] = temp;
 	}
-	
+	/**
+	 * Gets the time it took to sort.
+	 * @return The time it took to sort.
+	 */
 	public String sortingTime(long sortTime)
 	{
 		String timeToSort = "";
