@@ -61,7 +61,7 @@ public class DatabaseAppController
 	
 	private void loadTimeInformation()
 	{
-		File loadFile = new File("something.txt");
+		File loadFile = new File("save.save");
 		try
 		{
 			
@@ -93,23 +93,25 @@ public class DatabaseAppController
 	{
 		try
 		{
-			File loadFile = new File("something.txt");
-			for(int spot = 0; spot < queryList.size(); spot++)
-			{
+			File loadFile = new File("save.save");
+			PrintWriter writer = new PrintWriter(loadFile);
 				if(loadFile.exists())
 				{
-					PrintWriter writer = new PrintWriter("something.txt", "UTF-8");
-					writer.println(queryList.get(spot));
+					for(QueryInfo current : queryList)
+					{
+					
+					writer.println(current.getQuery());
+					writer.println(current.getQueryTime());
+					
+					}
 					writer.close();
+					JOptionPane.showMessageDialog(getAppFrame(), queryList.size() + " QueryInfor objects were saved.");
 				}
 				else
 				{
-//					String dataToWrite = getQueryList();
-//					FileOutputStream out = new FileOutputStream("something");
-//					out.write(dataToWrite);
-//					out.close();
+					JOptionPane.showMessageDialog(getAppFrame(), "File not present. No QueryInfo objects were saved.");
 				}
-			}
+			
 		}
 		catch(IOException currentError)
 		{
